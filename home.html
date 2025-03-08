@@ -36,55 +36,43 @@
               <a class="nav-link active" aria-current="page" href="home.html" style="text-decoration: underline;">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="search.html">Book List</a>
+              <a class="nav-link" href="bookList.html">Book List</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="Map.html">Add/Remove Book</a>
+              <a class="nav-link" href="addRemove.html">Add/Remove Book</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="Calculator.html" >Notes</a>
+              <a class="nav-link" href="notes.html" >Notes</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">User Management</a>
+              <a class="nav-link" href="users.html">User Management</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Progress</a>
+              <a class="nav-link" href="progress.html">Progress</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Meetings</a>
+              <a class="nav-link" href="meetings.html">Meetings</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12 col-sm-4 col-xl-3">
-          <div class="p-2 border text-center">Estate News</div>
-          <ul class="newslist">
-            <li>28 new listings in Hamilton</li>
-            <li>Houses for sale have a good chance to be sold</li>
-            <li>The more attractive the house, the higher the price</li>
-          </ul>
-        </div>
-        
-        <div class="col-12 col-sm-4 col-xl-6">
-          <div class="p-2 border text-center">Highlighted Home</div>
-          <img class="img-fluid" src="house.jpg" alt="House">
-        </div>
-        
-        <div class="col-12 col-sm-4 col-xl-3">
-          <div class="p-2 border text-center">Local Realtors</div>
-          <ul class="realtorlist">
-            <li>Durtin McGutter</li>
-            <li>Shed Sumtears</li>
-            <li>Scott Tewfloors</li>
-          </ul>
-        </div>
+    <div class="container mt-4">
+      <h1 class="text-center">Currently Reading</h1>
+      
+      <div class="card mx-auto" style="width: 18rem;">
+          <img src="{{cover_url}}" class="card-img-top" alt="Book Cover">
+          <div class="card-body">
+              <h5 class="card-title">Title: Title</h5>
+              <p class="card-text">Author: </p>
+              <p class="card-text">Meeting Date: date</p>
+          </div>
       </div>
+      <p class="text-center">No current book selected.</p>
+      
     </div>
-    </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
