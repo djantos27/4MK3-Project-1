@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  
+  </head>
+  <body>
+    <h1>  Search</h1>
+    <style>
+      h1 {
+        max-width: 400px;
+        padding-left: 20px;
+      }
+    </style>
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+      <style>
+        .navbar-nav {
+        max-width: 450px; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      </style>
+      <div class="container-fluid">
+        <a class="navbar-brand text-truncate" href="#"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="Home.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="search.html" style="text-decoration: underline;">Search</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Map.html">Map</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Calculator.html" >Calculator</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Realtors</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Login</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      
+      <form id="searchForm" class="form-control p-4">
+        <h3>Search Homes</h3>
+
+        <div class="mb-3">
+            <button type="button" class="btn btn-primary" id="allButton">All</button>
+            <button type="button" class="btn btn-success filter-community" id="waterdownButton">Waterdown</button>
+            <button type="button" class="btn btn-danger filter-community" id="mountainButton">Mountain</button>
+            <button type="button" class="btn btn-primary filter-community" id="ancasterButton">Ancaster</button>
+            <button type="button" class="btn btn-success filter-community" id="stoneyButton">Stoney Creek</button>
+            <button type="button" class="btn btn-danger filter-community" id="dundasButton">Dundas</button>
+        </div>
+
+        <div class="mb-3">
+          <select class="form-select" id="filterBedroom">
+            <option selected>Amount of Bedrooms</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+            <option value="4">Four</option>
+            <option value="5">Five</option>
+            <option value="6">Six</option>
+            <option value="7">Seven</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <button type="button" class="btn btn-primary" id="filterBedroomButton">Filter by Bedrooms</button>
+        </div>
+
+        <div class="mb-3">
+          <select class="form-select" id="filterBathroom">
+            <option selected>Amount of Bathrooms</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+            <option value="4">Four</option>
+            <option value="5">Five</option>
+            <option value="6">Six</option>
+            <option value="7">Seven</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <button type="button" class="btn btn-primary" id="filterBathroomButton">Filter by Bathrooms</button>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="text" id="priceMinName">Minimum Price</span>
+          <input type="text" class="form-control" placeholder="Minimum Price" id="priceMin" aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3">
+          <span class="text" id="priceMaxName">Maximum Price</span>
+          <input type="text" class="form-control" placeholder="Max Price" id="priceMax" aria-describedby="basic-addon2">
+        </div>
+        <div class="mb-3">
+          <button type="button" class="btn btn-primary" id="filterByPrice">Filter by Price Range</button>
+        </div>
+      </form>
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Address</th>
+            <th scope="col">Postal Code</th>
+            <th scope="col">City</th>
+            <th scope="col">Community</th>
+            <th scope="col">Province</th>
+            <th scope="col">Price</th>
+            <th scope="col">Bedrooms</th>
+            <th scope="col">Bathrooms</th>
+            <th scope="col">Picture</th>
+            <th scope="col">Description</th>
+          </tr>
+        </thead>
+        <tbody id = homesTable>
+          <tr>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+      <script>
+
+        async function fetchData(url) {
+          const response = await fetch(url);
+          const json_response = await response.json();
+
+          console.log(json_response);
+          console.log(json_response.length);
+
+          let y = json_response.length;
+          let tableBody = document.getElementById('homesTable')
+          tableBody.innerHTML = "";
+
+          for (let i = 0; i < y; i++) {
+            let row = document.createElement("tr")
+            row.innerHTML = `
+                                    <td>${json_response[i].address}</td>
+                                    <td>${json_response[i].postal_code}</td>
+                                    <td>${json_response[i].city}</td>
+                                    <td>${json_response[i].community}</td>
+                                    <td>${json_response[i].province}</td>
+                                    <td>${json_response[i].price.toLocaleString()}</td>
+                                    <td>${json_response[i].bedrooms}</td>
+                                    <td>${json_response[i].bathrooms}</td>
+                                    <td><img src="${json_response[i].img}" width="100"></td>
+                                    <td>${json_response[i].description}</td>
+                                
+                            `;
+            tableBody.appendChild(row);
+
+            console.log("form:",tableBody);
+          }
+          
+        }
+        fetchData("http://localhost:3000/all");
+
+        let waterdownBtn = document.getElementById("waterdownButton");
+        waterdownBtn.addEventListener("click", function(){
+          fetchData("http://localhost:3000/community_search?community=Waterdown");
+        });
+
+        let mountainBtn = document.getElementById("mountainButton");
+        mountainBtn.addEventListener("click", function(){
+          fetchData("http://localhost:3000/community_search?community=Mountain");
+        });
+
+        let ancasterBtn = document.getElementById("ancasterButton");
+        ancasterBtn.addEventListener("click", function(){
+          fetchData("http://localhost:3000/community_search?community=Ancaster");
+        });
+
+        let stoneyBtn = document.getElementById("stoneyButton");
+        stoneyBtn.addEventListener("click", function(){
+          fetchData("http://localhost:3000/community_search?community=Stoney%20Creek");
+        });
+
+        let dundasBtn = document.getElementById("dundasButton");
+        dundasBtn.addEventListener("click", function(){
+          fetchData("http://localhost:3000/community_search?community=Dundas");
+        });
+
+        let allBtn = document.getElementById("allButton");
+        allBtn.addEventListener("click", function(){
+          fetchData("http://localhost:3000/all");
+        });
+
+        let bedroomBtn = document.getElementById("filterBedroomButton");
+        bedroomBtn.addEventListener("click", function(){
+              let selectedBedrooms = document.getElementById("filterBedroom").value;
+              console.log(selectedBedrooms)
+              
+              if (selectedBedrooms) { 
+                  fetchData(`http://localhost:3000/bed_search?bedrooms=${selectedBedrooms}`);
+              } else {
+                  alert("Please select a valid bedroom number!");
+              }
+          });
+
+        let bathroomBtn = document.getElementById("filterBathroomButton");
+        bathroomBtn.addEventListener("click", function(){
+                let selectedBathrooms = document.getElementById("filterBathroom").value;
+                console.log(selectedBathrooms)
+                  
+                if (selectedBathrooms) { 
+                    fetchData(`http://localhost:3000/bathroom_search?bathrooms=${selectedBathrooms}`);
+                } else {
+                     alert("Please select a valid bathroom number!");
+                }
+          });
+
+        let homePriceBtn = document.getElementById("filterByPrice");
+        homePriceBtn.addEventListener("click", function(){
+                  let minHomePrice = document.getElementById("priceMin").value;
+                  let maxHomePrice = document.getElementById("priceMax").value;
+                  console.log("min Price", minHomePrice)
+                  console.log("max Price", maxHomePrice)
+                   
+                  fetchData(`http://localhost:3000/price_search?min=${minHomePrice}&max=${maxHomePrice}`);
+                  
+            });
+
+      </script>
+
+     
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

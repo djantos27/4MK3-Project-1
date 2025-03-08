@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+      h1 {
+        max-width: 400px;
+        padding-left: 20px;
+      }
+      .navbar-nav {
+        max-width: 450px; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #map {
+            height: 600px;
+            width: 1000px;
+        }
+      #alert-box {
+          display: none; /* Initially hidden */
+      }
+    </style>
+
+  </head>
+  
+  <body>
+    <h1>Map</h1>
+    
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand text-truncate" href="#"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="home.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Search</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Map.html" style="text-decoration: underline;">Map</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Calculator.html" >Calculator</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Realtors</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Login</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-2">
+              
+      <div id="alert-box" class="alert alert-danger text-center" role="alert"></div>
+
+      <div class="map-controls justify-content-between">
+          <button class="btn btn-primary" onclick="geolocate()">Geolocate</button>
+          <button class="btn btn-secondary" onclick="initMap2()">Hospitals</button>
+          <button class="btn btn-primary" onclick="searchPlaces('fire_station')">Fire Stations</button>
+          <button class="btn btn-secondary" onclick="searchPlaces('school')">Schools</button>
+          <button class="btn btn-primary" onclick="searchPlaces('waterfall')">Waterfalls</button>
+          <button class="btn btn-secondary" onclick="initMap()">Clear</button>
+      </div>
+
+      <div id="map"></div>
+      <div id="output"></div>
+      <div>Latitude: <span id="latitude"></span></div>
+      <div>Longitude: <span id="longitude"></span></div>
+    </div>
+
+    <script>
+      let mep;
+      let userLocation;
+      
+      function initMap(lat = 43.2524552, lng = -79.8308998) {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: lat, lng: lng },
+            zoom: 12,
+            mapId: "c078377c86cd409a"
+        });
+        document.getElementById("latitude").innerHTML = "";
+        document.getElementById("longitude").innerHTML = "";
+    }
+
+      // Lat and long
+      function foundPosition(position) {
+          let lat = position.coords.latitude;
+          let lng = position.coords.longitude;
+
+          document.getElementById("latitude").innerHTML = lat;
+          document.getElementById("longitude").innerHTML = lng;
+
+          // Remove existing user marker if any
+          if (userLocation) {
+              userLocation.setMap(null);
+          }
+
+          // Add Marker at User's Location
+          userLocation = new google.maps.Marker({
+              position: { lat: lat, lng: lng },
+              map: map,
+              title: "Current Location",
+              icon: {
+                  url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+              }
+          });
+
+          userLocation.addListener("click", function() {
+              const infoWindow = new google.maps.InfoWindow({
+                  content: "<h3>Current Location</h3>"
+              });
+              infoWindow.open(map, userLocation);
+          });
+
+          map.setCenter({ lat: lat, lng: lng });
+          map.setZoom(14);
+      }
+
+      // GEOLOCATE
+      function geolocate() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(foundPosition, () => {
+                  showError("Error: Location could not be found");
+              });
+          } else {
+              showError("Error: Geolocation is not supported by this browser.");
+          }
+      }
+
+      function showError(message) {
+          const alertBox = document.getElementById("alert-box");
+          alertBox.innerHTML = message;
+          alertBox.style.display = "block";
+
+          setTimeout(() => {
+              alertBox.style.display = "none";
+          }, 5000);
+      }
+  
+        
+  
+    </script>
+
+    <script>
+      let map;
+      let markers = [];
+
+      function initMap2()
+      {
+        map = new google.maps.Map(document.getElementById("map"),
+                                  {center: {lat: 43.2595, lng: -79.9175},
+                                  zoom: 12,
+                                  mapId: "MAP_ID_GOES_HERE"});
+
+        const infoWindow = new google.maps.InfoWindow();
+
+        for (let i = 0; i < education.features.length; i++)
+        {
+          if (education.features[i].properties.CATEGORY == "Elementary School")
+          {
+            img_src = "https://maps.google.com/mapfiles/kml/paddle/pink-blank.png";
+          }
+          else if (education.features[i].properties.CATEGORY == "Secondary School")
+          {
+            img_src = "https://maps.google.com/mapfiles/kml/paddle/blu-blank.png";
+          }
+          else 
+          {
+            img_src = "https://maps.google.com/mapfiles/kml/paddle/grn-blank.png";
+          }
+
+          const icon_content = document.createElement("img");
+          icon_content.src = img_src;
+
+          const new_marker =  
+            new google.maps.marker.AdvancedMarkerElement(
+              {
+                map,
+                position: {lat: education.features[i].geometry.coordinates[1],
+                          lng: education.features[i].geometry.coordinates[0]
+                          },
+                content: icon_content
+              });
+
+          new_marker.NAME = education.features[i].properties.NAME;
+          new_marker.CATEGORY = education.features[i].properties.CATEGORY;
+
+          new_marker.addListener("click", function() {
+
+            infoWindow.close();
+            infoWindow.setContent("<h2>" + this.NAME + "</h2>" +
+                                  "<h3>" + this.CATEGORY + "</h3>");
+            infoWindow.open(map, this);
+
+          });
+
+          markers.push( new_marker );
+        }
+
+        function displayElementary()
+        {
+          for (let i = 0; i < markers.length; i++)
+          {
+            if (markers[i].CATEGORY == "Elementary School")
+            {
+              markers[i].position = {lat: education.features[i].geometry.coordinates[1],
+                                    lng: education.features[i].geometry.coordinates[0]
+                                    }
+            }
+            else 
+            {
+              markers[i].position = null; 
+            }
+          }        
+        }
+
+        let elementary_button = document.getElementById("elementary");
+        elementary_button.addEventListener("click", displayElementary);
+
+        function displayAll()
+        {
+          for (let i = 0; i < markers.length; i++)
+          {
+              markers[i].position = {lat: education.features[i].geometry.coordinates[1],
+                                    lng: education.features[i].geometry.coordinates[0]
+                                    }
+          }        
+        }
+
+        let all_button = document.getElementById("all");
+        all_button.addEventListener("click", displayAll);
+
+      }
+
+    </script>
+
+
+    <script async
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZz5CYZFoW1acpcePnsw8Qf2hq5ku2tNU&loading=async&libraries=marker&callback=initMap">
+    </script>
+      
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
