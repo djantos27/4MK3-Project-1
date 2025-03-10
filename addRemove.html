@@ -65,64 +65,6 @@
       </div>
     </nav>
 
-    <script>
-      function validateBookForm() {
-          let title = document.getElementById('bookTitle');
-          let author = document.getElementById('bookAuthor');
-          let year = document.getElementById('bookYear');
-          let isbn = document.getElementById('bookISBN');
-          let coverUrl = document.getElementById('bookCover');
-          let errorlist = document.getElementById('errorList');
-          let errorContainer = document.getElementById('errorContainer');
-          let resultContainer = document.getElementById('resultContainer');
-          let errors = [];
-
-          errorlist.innerHTML = "";
-          errorContainer.style.display = "none";
-          resultContainer.style.display = "none";
-
-          function validateField(field, condition, errorMessage) {
-              if (!condition) {
-                  errors.push(errorMessage);
-                  field.classList.add('is-invalid');
-              } else {
-                  field.classList.remove('is-invalid');
-                  field.classList.add('is-valid');
-              }
-          }
-
-          validateField(title, title.value.trim() !== "", "Book title is required.");
-          validateField(author, author.value.trim() !== "", "Author name is required.");
-          validateField(year, !isNaN(year.value) && year.value >= 1450 && year.value <= new Date().getFullYear(), "Year must be between 1450 and the current year.");
-          validateField(isbn, /^\d{10,13}$/.test(isbn.value), "ISBN must be a 10 or 13-digit number.");
-          validateField(coverUrl, /^https?:\/\/.+\.(jpg|jpeg|png|gif)$/.test(coverUrl.value), "Book cover must be a valid image URL (jpg, jpeg, png, gif).");
-
-          if (errors.length > 0) {
-              errorContainer.style.display = "block";
-              errors.forEach(error => {
-                  let li = document.createElement("li");
-                  li.innerText = error;
-                  errorlist.appendChild(li);
-              });
-              return;
-          }
-
-          document.getElementById('result').innerText = "Book added successfully!";
-          resultContainer.style.display = "block";
-      }
-
-      function resetForm() {
-          document.getElementById('bookForm').reset();
-          document.getElementById('result').innerText = "";
-          document.getElementById('errorList').innerHTML = "";
-          document.getElementById('errorContainer').style.display = "none";
-          document.getElementById('resultContainer').style.display = "none";
-          document.querySelectorAll('.form-control').forEach(field => {
-              field.classList.remove('is-invalid', 'is-valid');
-          });
-      }
-    </script>
-
     <h2>Add a Book</h2>
     <form id="bookForm" novalidate style="margin: 20px;">
       <div class="col-3">
@@ -163,5 +105,109 @@
     <div id="resultContainer" class="alert alert-success mt-3" style="display: none;">
       <p id="result"></p>
     </div>
+
+    <script>
+      function validateBookForm() {
+          let title = document.getElementById('bookTitle');
+          let author = document.getElementById('bookAuthor');
+          let year = document.getElementById('bookYear');
+          let isbn = document.getElementById('bookISBN');
+          let coverUrl = document.getElementById('bookCover');
+          let errorList = document.getElementById('errorList');
+          let errorContainer = document.getElementById('errorContainer');
+          let resultContainer = document.getElementById('resultContainer');
+          let errors = [];
+
+          errorList.innerHTML = "";
+          errorContainer.style.display = "none";
+          resultContainer.style.display = "none";
+
+          function validateField(field, condition, errorMessage) {
+              if (!condition) {
+                  errors.push(errorMessage);
+                  field.classList.add('is-invalid');
+              } else {
+                  field.classList.remove('is-invalid');
+                  field.classList.add('is-valid');
+              }
+          }
+          
+          validateField(title, title.value.trim() !== "", "Book title is required.");
+          validateField(author, author.value.trim() !== "", "Author name is required.");
+          validateField(year, !isNaN(year.value) && year.value >= 1500 && year.value <= new Date().getFullYear(), "Year must be between 1500 and the current year.");
+          validateField(isbn, /^\d{10,13}$/.test(isbn.value), "ISBN must be a 10 or 13-digit number.");
+          
+          let imageUrl = coverUrl.value.trim(); // Trim spaces
+
+            if (!imageUrl) {
+                errors.push("Book cover URL cannot be empty.");
+                coverUrl.classList.add('is-invalid');
+            } else if (!imageUrl.match(/^https?:\/\/.*\.(jpg|jpeg|png|gif)$/i)) {
+                errors.push("Book cover must be a valid, accessible image URL (jpg, jpeg, png, gif).");
+                coverUrl.classList.add('is-invalid');
+            } else {
+                coverUrl.classList.remove('is-invalid');
+                coverUrl.classList.add('is-valid');
+
+                // ✅ Ensure `imageUrl` is not empty before inserting into HTML
+                if (imageUrl.length > 0) {
+                    document.getElementById('bookCover').innerHTML = 
+                        `<a href="${imageUrl}" target="_blank">View Cover Image</a>`;
+                }
+            }
+          
+          if (errors.length > 0) {
+              console.log("Validation failed:", errors);
+              errorContainer.style.display = "block";
+              errors.forEach(error => {
+                  let li = document.createElement("li");
+                  li.innerText = error;
+                  errorList.appendChild(li);
+              });
+              return;
+          }
+          console.log("Validation passed! Calling saveToDatabase()...");
+          document.getElementById('result').innerText = "Book added successfully!";
+          resultContainer.style.display = "block";
+          saveToDatabase();
+      }
+
+      function resetForm() {
+          document.getElementById('bookForm').reset();
+          document.getElementById('errorList').innerHTML = "";
+          document.getElementById('errorContainer').style.display = "none";
+          document.getElementById('resultContainer').style.display = "none";
+          document.getElementById('coverPreview').innerHTML = "";
+          document.querySelectorAll('.form-control').forEach(field => {
+              field.classList.remove('is-invalid', 'is-valid');
+          });
+      }
+
+      function saveToDatabase() {
+        let bookData = {
+            title: document.getElementById('bookTitle').value.trim(),
+            author: document.getElementById('bookAuthor').value.trim(),
+            year: document.getElementById('bookYear').value.trim(),
+            isbn: document.getElementById('bookISBN').value.trim(),
+            coverUrl: document.getElementById('bookCover').value.trim()
+        };
+
+        console.log("Sending data:", bookData); 
+
+        fetch('http://localhost:3000/api/books', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bookData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Server response:", data); 
+            document.getElementById('result').innerText = data.response;
+            document.getElementById('resultContainer').style.display = 'block';
+        })
+        .catch(error => console.error('Fetch error:', error));
+    }
+
+    </script>
   </body>
 </html>
