@@ -1,6 +1,5 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
 
 const app = express();
 const port = 3000;
@@ -8,16 +7,8 @@ const db = new sqlite3.Database("books.db");
 
 app.use(express.json()); // Enable JSON parsing
 
-// Serve static HTML files (Frontend)
-app.use(express.static(path.join(__dirname, "public")));
-
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "home.html"));
-});
-
-app.get("/addRemove.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "addRemove.html"));
-});
+// Serve static files from the root directory (where server.js is located)
+app.use(express.static(__dirname));
 
 // Create "books" table if it doesn't exist
 db.run(`
@@ -34,20 +25,20 @@ db.run(`
     else console.log("Books table is ready.");
 });
 
-// GET all books
+// Get all books
 app.get("/api/books", (req, res) => {
-    db.all("SELECT rowid AS id, * FROM books", (err, rows) => {
+    db.all("SELECT id, title FROM books", (err, rows) => {
         if (err) {
             console.error("Database fetch error:", err.message);
             return res.status(500).json({ error: err.message });
         }
-        console.log("📚 Books fetched:", rows); // ✅ Log fetched books
+        res.setHeader("Content-Type", "application/json"); 
         res.json(rows);
     });
 });
 
 
-// POST (Add a new book)
+// Add a new book
 app.post("/api/books", (req, res) => {
     const { title, author, year, isbn, coverUrl } = req.body;
 
@@ -59,20 +50,32 @@ app.post("/api/books", (req, res) => {
         "INSERT INTO books (title, author, year, isbn, coverUrl) VALUES (?, ?, ?, ?, ?)",
         [title, author, year, isbn, coverUrl],
         function (err) {
-            err ? res.status(500).json({ error: err.message }) :
-                res.json({ response: "BOOK INSERTED", id: this.lastID });
+            if (err) {
+                console.error("Error inserting book:", err.message);
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ response: "BOOK INSERTED", id: this.lastID });
         }
     );
 });
 
-// DELETE (Remove a book by ID)
+// Delete a book by ID
 app.delete("/api/books/:id", (req, res) => {
-    db.run("DELETE FROM books WHERE rowid = ?", [req.params.id], function (err) {
-        err ? res.status(500).json({ error: err.message }) :
-            res.json({ response: "BOOK DELETED" });
+    const { id } = req.params;
+
+    db.run("DELETE FROM books WHERE id = ?", [id], function (err) {
+        if (err) {
+            console.error("Error deleting book:", err.message);
+            return res.status(500).json({ error: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: "Book not found" });
+        }
+        res.json({ response: "BOOK DELETED" });
     });
 });
 
+// Start Server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/api`);
+    console.log(`Server running at http://localhost:${port}`);
 });
