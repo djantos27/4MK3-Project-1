@@ -97,6 +97,20 @@
         <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
       </div>
     </form>
+    <div class="container mt-4">
+      <h2>Book List</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="bookTableBody">
+                <!-- Books will be added here dynamically -->
+            </tbody>
+        </table>
+    </div>
 
     <div id="errorContainer" class="alert alert-danger mt-3" style="display: none;">
       <ul id="errorList"></ul>
@@ -209,5 +223,68 @@
     }
 
     </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          console.log("Fetching books on page load...");
+          fetchBooks();
+      });
+
+      function fetchBooks() {
+          fetch("http://localhost:3000/api/books")
+              .then(response => response.json())
+              .then(data => {
+                  console.log("Books fetched from server:", data);
+                  let tableBody = document.getElementById("bookTableBody");
+
+                  // Clear existing table content
+                  tableBody.innerHTML = "";
+
+                  if (!Array.isArray(data) || data.length === 0) {
+                      tableBody.innerHTML = `<tr><td colspan="2">No books available</td></tr>`;
+                      return;
+                  }
+
+                  data.forEach(book => {
+                      let row = document.createElement("tr");
+
+                      let titleCell = document.createElement("td");
+                      titleCell.innerText = book.title;
+
+                      let actionCell = document.createElement("td");
+                      let deleteButton = document.createElement("button");
+                      deleteButton.innerText = "Remove";
+                      deleteButton.classList.add("btn", "btn-danger", "btn-sm");
+                      deleteButton.onclick = function () {
+                          removeBook(book.id);
+                      };
+
+                      actionCell.appendChild(deleteButton);
+                      row.appendChild(titleCell);
+                      row.appendChild(actionCell);
+                      tableBody.appendChild(row);
+                  });
+
+                  console.log("Table populated successfully.");
+              })
+              .catch(error => console.error("Error fetching books:", error));
+      }
+
+      function removeBook(bookId) {
+          if (!confirm("Are you sure you want to delete this book?")) return;
+
+          fetch(`http://localhost:3000/api/books/${bookId}`, { method: "DELETE" })
+              .then(response => response.json())
+              .then(data => {
+                  console.log("Book deleted:", data);
+                  fetchBooks(); // Refresh the table
+              })
+              .catch(error => console.error("Error deleting book:", error));
+      }
+
+    </script>
+
+
+
   </body>
 </html>
