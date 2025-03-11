@@ -39,7 +39,13 @@ app.get("/api/books", (req, res) => {
 
 // Get all books, and all info
 app.get("/api/books/details", (req, res) => {
-    db.all("SELECT id, title, author, year, isbn, coverUrl, start_date, end_date FROM books", (err, rows) => {
+    const query = `
+        SELECT books.id, books.title, books.author, books.year, books.isbn, books.coverUrl, books.start_date, books.end_date, users.name AS added_by
+        FROM books
+        LEFT JOIN users ON books.user_id = users.id
+    `;
+
+    db.all(query, (err, rows) => {
         if (err) {
             console.error("Database fetch error:", err.message);
             return res.status(500).json({ error: err.message });
@@ -73,21 +79,21 @@ app.post("/api/books", (req, res) => {
 */
 
 app.post("/api/books", (req, res) => {
-    const { title, author, year, isbn, coverUrl, start_date, end_date } = req.body;
+    const { title, author, year, isbn, coverUrl, start_date, end_date, user_id } = req.body;
 
-    if (!title || !author || !year || !isbn || !coverUrl) {
-        return res.status(400).json({ error: "All fields are required except dates" });
+    if (!title || !author || !year || !isbn || !coverUrl || !user_id) {
+        return res.status(400).json({ error: "All fields are required, including user selection" });
     }
 
     db.run(
-        "INSERT INTO books (title, author, year, isbn, coverUrl, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [title, author, year, isbn, coverUrl, start_date || null, end_date || null],
+        "INSERT INTO books (title, author, year, isbn, coverUrl, start_date, end_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [title, author, year, isbn, coverUrl, start_date || null, end_date || null, user_id],
         function (err) {
             if (err) {
                 console.error("Error inserting book:", err.message);
                 return res.status(500).json({ error: err.message });
             }
-            res.json({ response: "BOOK INSERTED", id: this.lastID, title: title, start_date: start_date, end_date: end_date });
+            res.json({ response: "BOOK INSERTED", id: this.lastID });
         }
     );
 });
