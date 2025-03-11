@@ -68,6 +68,13 @@
     <h2>Add a Book</h2>
     <form id="bookForm" novalidate style="margin: 20px;">
       <div class="col-3">
+        <label for="bookUser">Added By:</label>
+        <select class="form-control" id="bookUser" name="bookUser" required>
+            <option value="">Select a User</option>
+        </select>
+      </div>
+      <br>
+      <div class="col-3">
           <label for="bookTitle">Title:</label>
           <input type="text" class="form-control" id="bookTitle" name="bookTitle" required>
       </div>
@@ -90,6 +97,16 @@
       <div class="col-3">
         <label for="bookCover">Book Cover URL:</label>
         <input type="text" class="form-control" id="bookCover" name="bookCover" required>
+      </div>
+      <br>
+      <div class="col-3">
+        <label for="startDate">Start Date:</label>
+        <input type="date" class="form-control" id="startDate" name="startDate">
+      </div>
+      <br>
+      <div class="col-3">
+        <label for="endDate">End Date:</label>
+        <input type="date" class="form-control" id="endDate" name="endDate">
       </div>
       <br>
       <div class="col-12">  
@@ -127,6 +144,8 @@
           let year = document.getElementById('bookYear');
           let isbn = document.getElementById('bookISBN');
           let coverUrl = document.getElementById('bookCover');
+          let startDate = document.getElementById('startDate');
+          let endDate = document.getElementById('endDate');
           let errorList = document.getElementById('errorList');
           let errorContainer = document.getElementById('errorContainer');
           let resultContainer = document.getElementById('resultContainer');
@@ -169,7 +188,17 @@
                         `<a href="${imageUrl}" target="_blank">View Cover Image</a>`;
                 }
             }
-          
+            // Validate dates
+            if (startDate.value && endDate.value && new Date(startDate.value) > new Date(endDate.value)) {
+                errors.push("End Date must be after Start Date.");
+                startDate.classList.add("is-invalid");
+                endDate.classList.add("is-invalid");
+            } else {
+                startDate.classList.remove("is-invalid");
+                endDate.classList.remove("is-invalid");
+            }
+
+
           if (errors.length > 0) {
               console.log("Validation failed:", errors);
               errorContainer.style.display = "block";
@@ -203,7 +232,10 @@
             author: document.getElementById('bookAuthor').value.trim(),
             year: document.getElementById('bookYear').value.trim(),
             isbn: document.getElementById('bookISBN').value.trim(),
-            coverUrl: document.getElementById('bookCover').value.trim()
+            coverUrl: document.getElementById('bookCover').value.trim(),
+            start_date: document.getElementById('startDate').value.trim() || null,
+            end_date: document.getElementById('endDate').value.trim() || null,
+            user_id: document.getElementById('bookUser').value
         };
 
         console.log("Sending data:", bookData); 
@@ -231,6 +263,7 @@
       document.addEventListener("DOMContentLoaded", function () {
           console.log("Fetching books on page load...");
           fetchBooks();
+          fetchUsers();
       });
 
       function fetchBooks() {
@@ -283,6 +316,23 @@
                   fetchBooks(); // Refresh the table
               })
               .catch(error => console.error("Error deleting book:", error));
+      }
+
+      function fetchUsers() {
+        fetch("http://localhost:3000/api/users")
+            .then(response => response.json())
+            .then(users => {
+                let userDropdown = document.getElementById("bookUser");
+                userDropdown.innerHTML = '<option value="">Select a User</option>'; // Reset options
+
+                users.forEach(user => {
+                    let option = document.createElement("option");
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    userDropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching users:", error));
       }
 
     </script>
