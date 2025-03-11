@@ -1,13 +1,17 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
+const mustacheExpress = require("mustache-express");
 
 const app = express();
 const port = 3000;
 const db = new sqlite3.Database("books.db");
 
 app.use(express.json()); // Enable JSON parsing
+app.engine("mustache", mustacheExpress());
+app.set("view engine", "mustache");
+app.set("views", __dirname);
 
-// Serve static files from the root directory (where server.js is located)
+// Serve static files from the root directory 
 app.use(express.static(__dirname));
 
 // Create "books" table if it doesn't exist
@@ -169,6 +173,44 @@ app.delete("/api/users/:id", (req, res) => {
         }
         res.json({ response: "USER DELETED" });
     });
+});
+
+//Home current book
+app.get("/", (req, res) => {
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+
+    const queryCurrentBooks = `
+        SELECT books.*, users.name AS added_by
+        FROM books
+        LEFT JOIN users ON books.user_id = users.id
+        WHERE books.start_date <= ? AND (books.end_date IS NULL OR books.end_date >= ?)
+        ORDER BY books.start_date DESC
+    `;
+
+    db.all(queryCurrentBooks, [today, today], (err, currentBooks) => {
+        if (err) {
+            console.error("Error fetching current books:", err.message);
+            return res.status(500).send("Database error");
+        }
+
+        db.all("SELECT id, title FROM books", (err, books) => {
+            if (err) {
+                console.error("Error fetching books:", err.message);
+                return res.status(500).send("Database error");
+            }
+
+            res.render("home", {
+                currentBooks: currentBooks, // Pass multiple books
+                books: books || [],
+                hasBooks: currentBooks.length > 0 // Check if there are any current books
+            });
+        });
+    });
+});
+
+//redirect home.html to "/"
+app.get("/home.html", (req, res) => {
+    res.redirect("/");
 });
 
 
