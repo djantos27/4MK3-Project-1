@@ -218,6 +218,9 @@
             console.log("Server response:", data); 
             document.getElementById('result').innerText = data.response;
             document.getElementById('resultContainer').style.display = 'block';
+
+            fetchBooks();
+            //resetForm();
         })
         .catch(error => console.error('Fetch error:', error));
     }
