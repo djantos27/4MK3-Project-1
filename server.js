@@ -175,6 +175,27 @@ app.delete("/api/users/:id", (req, res) => {
     });
 });
 
+//update user
+app.put("/api/users/:id", (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ error: "User name is required" });
+    }
+
+    db.run("UPDATE users SET name = ? WHERE id = ?", [name, id], function (err) {
+        if (err) {
+            console.error("Error updating user:", err.message);
+            return res.status(500).json({ error: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        res.json({ response: "USER UPDATED", id: id, name: name });
+    });
+});
+
 //Home current book
 app.get("/", (req, res) => {
     const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
